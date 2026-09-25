@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Assistant Maghrebia - Chat</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        color-scheme: light;
+      }
+
+      html,
+      body {
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      body {
+        margin: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #003865;
+        color: #0f172a;
+      }
+
+      .chatbot-page {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .chatbot-page::before,
+      .chatbot-page::after {
+        content: none;
+      }
+
+      .chatbot-page::before {
+        width: 260px;
+        height: 260px;
+        background: #f59e0b;
+        top: -60px;
+        right: -80px;
+      }
+
+      .chatbot-page::after {
+        width: 220px;
+        height: 220px;
+        background: #93c5fd;
+        bottom: -40px;
+        left: -70px;
+      }
+      
+      .chatbot-header {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(18px);
+        padding: 18px 60px;
+        border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+        box-shadow: 0 6px 24px rgba(15, 31, 92, 0.08);
+        position: relative;
+        flex: 0 0 auto;
+        z-index: 1;
+      }
+      
+      .chatbot-header-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .brand-block {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-block .logo-chatbot {
+        height: 48px;
+        width: auto;
+      }
+
+      .brand-text {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .brand-title {
+        font-size: 0.98rem;
+        font-weight: 800;
+        color: #15297a;
+      }
+
+      .brand-subtitle {
+        font-size: 0.8rem;
+        color: #64748b;
+      }
+      
+      .chatbot-container {
+        flex: 1;
+        min-height: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .chatbot-wrapper {
+        width: 100%;
+        max-width: 800px;
+        height: 100%;
+      }
+      
+      .chat-box {
+        background: white;
+        height: 100%;
+        min-height: 0;
+        border-radius: 24px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
+        border: 1px solid rgba(255,255,255,0.18);
+        animation: floatIn 0.6s ease both;
+      }
+      
+      .chat-box-header {
+        background: #004B87;
+        padding: 24px 32px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border-bottom: 3px solid #E85D04;
+        position: relative;
+      }
+      
+      .chat-box-icon {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, rgba(249, 115, 22, 0.22), rgba(251, 146, 60, 0.32));
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid rgba(249, 115, 22, 0.45);
+        box-shadow: 0 4px 12px rgba(249, 115, 22, 0.24);
+        position: relative;
+      }
+      
+      .robot-icon {
+        width: 36px;
+        height: 36px;
+      }
+      
+      .chat-box-title {
+        flex: 1;
+      }
+      
+      .chat-box-name {
+        color: white;
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-bottom: 6px;
+        letter-spacing: -0.01em;
+      }
+      
+      .chat-box-status {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+      }
+      
+      .status-dot {
+        width: 10px;
+        height: 10px;
+        background: #10B981;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+        box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+      }
+      
+      @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.7; transform: scale(0.95); }
+      }
+
+      @keyframes floatIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .chat-box-messages {
+        flex: 1;
+        padding: 40px 32px;
+        min-height: 0;
+        max-height: none;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        background: #F8FAFC;
+        min-height: 0;
+      }
+      
+      .chat-box-messages::-webkit-scrollbar {
+        width: 8px;
+      }
+      
+      .chat-box-messages::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      
+      .chat-box-messages::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+      }
+      
+      .chat-box-messages::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+      
+      .chat-box-input {
+        flex: 0 0 auto;
+        display: flex;
+        gap: 12px;
+        padding: 24px 32px;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+      }
+      
+      .chat-box-input input {
+        flex: 1;
+        padding: 14px 18px;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        font-size: 0.95rem;
+        background: white;
+        color: #1e293b;
+        transition: all 0.3s ease;
+        font-weight: 500;
+      }
+      
+      .chat-box-input input:focus {
+        outline: none;
+        border-color: #f97316;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
+      }
+      
+      .chat-box-input input::placeholder {
+        color: #94a3b8;
+        font-weight: 400;
+      }
+      
+      .chat-box-input button {
+        width: 56px;
+        height: 56px;
+        background: #E85D04;
+        border: none;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 16px rgba(232, 93, 4, 0.24);
+      }
+      
+      .chat-box-input button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(232, 93, 4, 0.3);
+      }
+      
+      .chat-box-input button:active {
+        transform: translateY(0);
+      }
+      
+      .message-bot-container {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        animation: slideIn 0.4s ease-out;
+      }
+      
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      .message-user-container {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        flex-direction: row-reverse;
+        align-self: flex-end;
+        animation: slideIn 0.4s ease-out;
+      }
+      
+      .message-avatar {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #15297a 0%, #1e3a8a 100%);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border: 2px solid rgba(249, 115, 22, 0.2);
+        box-shadow: 0 2px 8px rgba(21, 41, 122, 0.2);
+      }
+      
+      .message-user-container .message-avatar {
+        background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+        border-color: rgba(21, 41, 122, 0.2);
+        box-shadow: 0 2px 8px rgba(249, 115, 22, 0.2);
+      }
+      
+      .message-content {
+        background: white;
+        padding: 16px 18px;
+        border-radius: 16px;
+        color: #334155;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        max-width: 550px;
+        box-shadow: 0 2px 12px rgba(235, 235, 237, 0.06), 0 0 0 1px rgba(15, 23, 42, 0.04);
+        border: 1px solid #e2e8f0;
+        font-weight: 500;
+        text-align: left;
+      }
+
+      .message-content p {
+        margin: 0 0 10px 0;
+      }
+
+      .message-content p:last-child {
+        margin-bottom: 0;
+      }
+
+      .message-content ul,
+      .message-content ol {
+        margin: 6px 0 10px 0;
+        padding-left: 22px;
+      }
+
+      .message-content ul:last-child,
+      .message-content ol:last-child {
+        margin-bottom: 0;
+      }
+
+      .message-content li {
+        margin-bottom: 6px;
+      }
+
+      .message-content li:last-child {
+        margin-bottom: 0;
+      }
+
+      .message-content strong {
+        font-weight: 700;
+        color: #15297a;
+      }
+
+      .message-user-container .message-content strong {
+        color: white;
+      }
+      
+      .message-user-container .message-content {
+        background: linear-gradient(135deg, #15297a 0%, #1e3a8a 100%);
+        color: white;
+        border-color: transparent;
+        box-shadow: 0 2px 12px rgba(21, 41, 122, 0.3);
+      }
+      
+      .logo-chatbot {
+        height: 48px;
+        width: auto;
+      }
+      
+      .btn-return {
+        padding: 10px 18px;
+        background: white;
+        color: #15297a;
+        border: 1px solid #dbe3f0;
+        border-radius: 999px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+      
+      .btn-return:hover {
+        background: #15297a;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 18px rgba(21, 41, 122, 0.2);
+      }
+      
+      @media (max-width: 768px) {
+        .chatbot-header {
+          padding: 16px 20px;
+        }
+        
+        .chatbot-container {
+          padding: 24px 16px;
+        }
+        
+        .chat-box-messages {
+          padding: 24px 20px;
+          min-height: 450px;
+        }
+        
+        .chat-box-input {
+          padding: 20px;
+        }
+        
+        .message-content {
+          max-width: 280px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chatbot-page">
+      <div class="chatbot-header">
+        <div class="chatbot-header-content">
+          <div class="brand-block">
+            <img src="assets/maghrebeya.jpg" alt="Maghrebia Assurance" class="logo-chatbot" />
+            
+          </div>
+          <a href="index.html" class="btn-return">Retour à l'accueil</a>
+        </div>
+      </div>
+      
+      <div class="chatbot-container">
+        <div class="chatbot-wrapper">
+          <div class="chat-box">
+            <div class="chat-box-header">
+              <div class="chat-box-icon">
+                <svg class="robot-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="12" y="16" width="24" height="20" rx="4" fill="white" fill-opacity="0.9"/>
+                  <rect x="12" y="16" width="24" height="20" rx="4" stroke="#f97316" stroke-width="2"/>
+                  <circle cx="20" cy="24" r="2.5" fill="#f97316"/>
+                  <circle cx="28" cy="24" r="2.5" fill="#f97316"/>
+                  <path d="M20 30H28" stroke="#f97316" stroke-width="2" stroke-linecap="round"/>
+                  <rect x="22" y="10" width="4" height="6" rx="1" fill="white"/>
+                  <circle cx="24" cy="8" r="2" fill="#f97316"/>
+                  <rect x="8" y="22" width="4" height="8" rx="1" fill="white"/>
+                  <rect x="36" y="22" width="4" height="8" rx="1" fill="white"/>
+                </svg>
+              </div>
+              <div class="chat-box-title">
+                <div class="chat-box-name">Assistant Maghrebia</div>
+                <div class="chat-box-status">
+                  <span class="status-dot"></span>
+                  En ligne
+                </div>
+              </div>
+            </div>
+            
+            <div class="chat-box-messages" id="messagesContainer">
+              <div class="message-bot-container">
+                <div class="message-avatar">
+                  <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+                    <rect x="12" y="16" width="24" height="20" rx="3" fill="white" fill-opacity="0.9"/>
+                    <circle cx="20" cy="24" r="2" fill="#f97316"/>
+                    <circle cx="28" cy="24" r="2" fill="#f97316"/>
+                    <path d="M20 30H28" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <rect x="22" y="12" width="4" height="4" rx="1" fill="white"/>
+                  </svg>
+                </div>
+                <div class="message-content">
+                  Bonjour ! Je suis votre assistant Maghrebia. Comment puis-je vous aider aujourd'hui ?
+                </div>
+              </div>
+            </div>
+            
+            <div class="chat-box-input">
+              <input type="text" id="userInput" placeholder="Écrivez votre message..." />
+              <button id="sendBtn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 8L11 13" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      const messagesContainer = document.getElementById('messagesContainer');
+      const userInput = document.getElementById('userInput');
+      const sendBtn = document.getElementById('sendBtn');
+
+      // Historique de conversation envoyé à Ollama (garde le contexte)
+      // IMPORTANT : les 15 champs collectés ci-dessous correspondent EXACTEMENT
+      // aux colonnes utilisées pour l'entraînement du modèle :
+      // Age, Sexe, Ville, Profession, Statut, Revenu_TND, Situation, Enfants,
+      // Logement, Transport, Credit, Projet, Risque, Voyage, Besoin_medical
+      let conversationHistory = [
+  {
+    role: 'system',
+    content: `Tu es l'Assistant Maghrebia, un chatbot d'assurance. Réponds de manière claire, professionnelle et concise en français. N'utilise JAMAIS de formatage Markdown (pas d'astérisques **gras**, pas de titres avec #) : écris en texte simple. Si tu listes plusieurs éléments (types de garanties, exemples, etc.), présente-les sous forme d'énumération numérotée claire (1. ... 2. ... 3. ...), avec un saut de ligne entre chaque point, et reste synthétique : maximum 5-6 points, quelques mots d'explication chacun, pour ne pas dépasser environ 120-150 mots au total sur une réponse informative.
+
+RÈGLE LA PLUS IMPORTANTE - ANALYSE AVANT DE POSER UNE QUESTION :
+Avant CHAQUE question, relis l'intégralité de la conversation (tous les messages du client depuis le début, pas seulement le dernier) et déduis TOUTES les informations que le client a déjà données, même si elles ont été fournies en une seule fois, dans le désordre, ou de façon indirecte/implicite (ex : "je suis divorcé" = Situation, "je travaille à temps plein" peut indiquer un Statut comme CDI, "je n'ai pas d'enfants" = Enfants = 0, "je voyage très souvent" = Voyage = Frequemment, "maladie chronique" = Besoin_medical, etc.).
+Ne repose JAMAIS une question sur une information déjà donnée, même reformulée différemment. Si le client a tout donné en un seul message, ne pose AUCUNE question de collecte : passe directement à la synthèse et, si tout est complet, au bloc PROFILE. Ne demande de confirmation ou de reformulation que si une info est réellement ambiguë ou manquante - jamais par principe.
+Ne pose une question que sur les champs qui manquent VRAIMENT après cette analyse, UNE SEULE question à la fois si plusieurs manquent, dans un ordre logique de conversation :
+
+- Age : nombre entier (ex: 18 à 60)
+- Sexe : doit être EXACTEMENT une de ces valeurs : "Homme", "Femme"
+- Ville : doit être EXACTEMENT une de ces valeurs (villes de Tunisie) : "Tunis", "Ariana", "Ben Arous", "Manouba", "Nabeul", "Zaghouan", "Bizerte", "Beja", "Kef", "Sousse", "Monastir", "Mahdia", "Sfax", "Kairouan", "Sidi Bouzid", "Gabes", "Medenine", "Gafsa"
+- Profession : texte libre (ex: "Ingenieur", "Enseignant", "Commercant", "Sans emploi", etc.)
+- Statut (statut professionnel) : doit être EXACTEMENT une de ces valeurs : "Sans emploi", "CDD", "Auto-entrepreneur", "CDI", "Fonction publique", "Freelance"
+- Revenu_TND : revenu mensuel net en dinars tunisiens, nombre entier
+- Situation (situation familiale) : doit être EXACTEMENT une de ces valeurs : "Celibataire", "Marie(e)", "Divorce(e)", "Veuf(ve)"
+- Enfants : nombre d'enfants à charge, nombre entier (0, 1, 2 ou 3)
+- Logement : doit être EXACTEMENT une de ces valeurs : "Proprietaire", "Locataire", "Chez les parents"
+- Transport (moyen de transport principal) : doit être EXACTEMENT une de ces valeurs : "Voiture personnelle", "Transport en commun", "Camionnette professionnelle", "Moto"
+- Credit (crédit en cours) : doit être EXACTEMENT une de ces valeurs : "Aucun", "Credit automobile", "Credit logement", "Credit consommation", "Plusieurs credits"
+- Projet (projet à venir, court ou long terme) : doit être EXACTEMENT une de ces valeurs : "Court terme", "Long terme", "Aucun"
+- Risque (goût du client pour le risque, à déduire du contexte de la conversation - profession, revenu, projets - ne pose pas la question directement de façon technique, tu peux demander par exemple s'il est plutôt prudent ou aventurier) : doit être EXACTEMENT une de ces valeurs : "Faible", "Moyenne", "Elevee"
+- Voyage (fréquence de voyage) : doit être EXACTEMENT une de ces valeurs : "Jamais", "Occasionnellement", "Frequemment"
+- Besoin_medical (besoin médical particulier) : doit être EXACTEMENT une de ces valeurs : "Aucun besoin particulier", "Maladie chronique", "Suivi medical regulier", "Hospitalisation frequente"
+
+Pour tous les champs à valeurs imposées, traduis toi-même la réponse naturelle et libre du client vers la valeur exacte correspondante dans la liste ci-dessus (ex : si le client dit "je voyage souvent", utilise "Frequemment" ; si le client dit qu'il est indépendant/à son compte, utilise "Auto-entrepreneur" pour Statut ; si le client dit qu'il loue son appartement, utilise "Locataire").
+
+Dès que TOUTES ces 15 informations ont été obtenues et validées, ajoute à la toute fin de ta réponse, sans rien changer d'autre au texte visible, ce bloc EXACT (il est invisible pour le client, ne l'annonce jamais et ne le décris jamais) :
+<PROFILE>{"Age":30,"Sexe":"Homme","Ville":"Tunis","Profession":"Ingenieur","Statut":"CDI","Revenu_TND":1800,"Situation":"Celibataire","Enfants":0,"Logement":"Locataire","Transport":"Voiture personnelle","Credit":"Aucun","Projet":"Court terme","Risque":"Moyenne","Voyage":"Occasionnellement","Besoin_medical":"Aucun besoin particulier"}</PROFILE>
+
+Règles impératives pour ce bloc JSON :
+- Les clés doivent être EXACTEMENT : Age, Sexe, Ville, Profession, Statut, Revenu_TND, Situation, Enfants, Logement, Transport, Credit, Projet, Risque, Voyage, Besoin_medical (aucune clé en plus, aucune en moins).
+- Age, Revenu_TND et Enfants doivent être des nombres (pas de guillemets, pas de texte).
+- Toutes les autres valeurs doivent être des chaînes de caractères correspondant EXACTEMENT à une des valeurs autorisées listées ci-dessus.
+- Tant que les 15 informations ne sont pas toutes collectées, ne mets JAMAIS ce bloc.`
+  }
+];
+      
+      // Échappe les caractères HTML sensibles (sécurité + évite que < > cassent l'affichage)
+      function escapeHtml(str) {
+        return str
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+      }
+
+      // Convertit la réponse texte du modèle (qui peut contenir du markdown léger
+      // et des énumérations inline du type "1. ... 2. ... 3. ...") en HTML propre :
+      // - **gras** -> <strong>
+      // - énumérations inline -> vraie liste <ol><li>
+      // - retours à la ligne -> paragraphes
+      function formatBotText(raw) {
+        let text = escapeHtml(raw);
+
+        // Gras : **texte**
+        text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+        // Découpe en paragraphes sur les doubles retours à la ligne (si présents)
+        const rawParagraphs = text.split(/\n{2,}/).map(p => p.trim()).filter(Boolean);
+        const paragraphs = rawParagraphs.length ? rawParagraphs : [text];
+
+        const htmlParts = paragraphs.map(paragraph => {
+          // Remplace les simples retours à la ligne restants par des espaces
+          const flat = paragraph.replace(/\n+/g, ' ').trim();
+
+          // Détecte une énumération inline : "1. Xxx 2. Yyy 3. Zzz"
+          // On découpe juste avant chaque "N. " suivi d'une majuscule ou d'un <strong>
+          const segments = flat.split(/\s(?=\d{1,2}\.\s+(?:<strong>|[A-ZÀ-Ý]))/);
+
+          if (segments.length >= 3) {
+            const intro = segments[0].match(/^\d{1,2}\.\s+/) ? null : segments.shift();
+            const items = segments
+              .map(seg => seg.replace(/^\d{1,2}\.\s+/, '').trim())
+              .filter(Boolean);
+            const list = `<ol>${items.map(item => `<li>${item}</li>`).join('')}</ol>`;
+            return intro ? `<p>${intro}</p>${list}` : list;
+          }
+
+          return `<p>${flat}</p>`;
+        });
+
+        return htmlParts.join('');
+      }
+
+      function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+
+      function addMessage(text, isUser = false, isHtml = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = isUser ? 'message-user-container' : 'message-bot-container';
+        
+        const robotIcon = `
+          <svg width="28" height="28" viewBox="0 0 48 48" fill="none">
+            <rect x="12" y="16" width="24" height="20" rx="3" fill="white" fill-opacity="0.9"/>
+            <circle cx="20" cy="24" r="2" fill="${isUser ? '#fff' : '#f97316'}"/>
+            <circle cx="28" cy="24" r="2" fill="${isUser ? '#fff' : '#f97316'}"/>
+            <path d="M20 30H28" stroke="${isUser ? '#fff' : 'white'}" stroke-width="2" stroke-linecap="round"/>
+            <rect x="22" y="12" width="4" height="4" rx="1" fill="white"/>
+          </svg>
+        `;
+        
+        const userIcon = `
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="8" r="4" stroke="white" stroke-width="2" fill="none"/>
+            <path d="M6 20C6 16 8 14 12 14C16 14 18 16 18 20" stroke="white" stroke-width="2" fill="none"/>
+          </svg>
+        `;
+        
+        const content = isUser ? escapeHtml(text) : (isHtml ? text : escapeHtml(text));
+
+        messageDiv.innerHTML = `
+          <div class="message-avatar">
+            ${isUser ? userIcon : robotIcon}
+          </div>
+          <div class="message-content">${content}</div>
+        `;
+        
+        messagesContainer.appendChild(messageDiv);
+        scrollToBottom();
+        return messageDiv;
+      }
+
+      // Liste des libellés lisibles pour chaque produit d'assurance (clé technique -> libellé affiché)
+      const PRODUITS_LABELS = {
+        "Assurance automobile": "Assurance automobile",
+        "Assurance habitation": "Assurance habitation",
+        "Assurance voyage": "Assurance voyage",
+        "Assurance voyage COVID-19": "Assurance voyage COVID-19",
+        "Assurance bateau de plaisance": "Assurance bateau de plaisance",
+        "Santé internationale (CHAMEL)": "Santé internationale (CHAMEL)",
+        "Hospitalisation": "Hospitalisation",
+        "Assurance scolaire": "Assurance scolaire",
+        "Assistance étudiants à l'étranger": "Assistance étudiants à l'étranger",
+        "Assurance accidents": "Assurance accidents",
+        "Assurance prévoyance": "Assurance prévoyance",
+        "Assurance emprunteur": "Assurance emprunteur",
+        "Plan d'épargne et retraite": "Plan d'épargne et retraite",
+        "Placements en unités de compte": "Placements en unités de compte",
+        "Plan d'épargne": "Plan d'épargne",
+        "Assurance multirisque professionnelle": "Assurance multirisque professionnelle",
+        "Responsabilité civile": "Responsabilité civile",
+        "Responsabilité civile décennale": "Responsabilité civile décennale",
+        "Assurance transport": "Assurance transport",
+        "Assurance matériels informatiques": "Assurance matériels informatiques"
+      };
+
+      // Vérifie que le profil extrait contient bien les 15 champs attendus par le modèle
+      function isProfileValid(profile) {
+        const requiredFields = [
+          'Age', 'Sexe', 'Ville', 'Profession', 'Statut', 'Revenu_TND',
+          'Situation', 'Enfants', 'Logement', 'Transport', 'Credit',
+          'Projet', 'Risque', 'Voyage', 'Besoin_medical'
+        ];
+        return requiredFields.every(field => profile[field] !== undefined && profile[field] !== null && profile[field] !== '');
+      }
+
+      function extractProfile(reply) {
+        const match = reply.match(/<PROFILE>([\s\S]*?)<\/PROFILE>/);
+        if (!match) return { cleanText: reply, profile: null };
+
+        const cleanText = reply.replace(match[0], '').trim();
+        try {
+          const parsed = JSON.parse(match[1]);
+          if (!isProfileValid(parsed)) {
+            console.warn('Profil incomplet reçu du modèle:', parsed);
+            return { cleanText, profile: null };
+          }
+          // On force les types numériques attendus par le modèle
+          parsed.Age = Number(parsed.Age);
+          parsed.Revenu_TND = Number(parsed.Revenu_TND);
+          parsed.Enfants = Number(parsed.Enfants);
+          return { cleanText, profile: parsed };
+        } catch (e) {
+          console.error('Erreur parsing profil:', e);
+          return { cleanText, profile: null };
+        }
+      }
+
+      async function handleProfileComplete(profile) {
+        const analysisEl = addTypingIndicator();
+        try {
+          const res = await fetch('http://localhost:5001/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(profile)
+          });
+
+          if (!res.ok) throw new Error('Erreur API prédiction: ' + res.status);
+          const result = await res.json();
+
+          // On s'attend à recevoir { recommandations: [ { produit: "...", score: 0.xx }, ... ] }
+          const recommandations = (result.recommandations || [])
+            .slice()
+            .sort((a, b) => b.score - a.score);
+
+          let text;
+          if (recommandations.length === 0) {
+            text = `<p>D'après votre profil, aucun produit spécifique n'a été identifié pour le moment. N'hésitez pas à contacter un conseiller Maghrebia pour plus d'informations.</p>`;
+          } else {
+            const items = recommandations.map(r => {
+              const label = PRODUITS_LABELS[r.produit] || r.produit;
+              return `<li><strong>${label}</strong> — pertinence : ${(r.score * 100).toFixed(0)}%</li>`;
+            }).join('');
+            text = `<p>D'après votre profil, voici les produits d'assurance recommandés :</p><ol>${items}</ol>`;
+          }
+
+          analysisEl.innerHTML = text;
+          scrollToBottom();
+          conversationHistory.push({ role: 'assistant', content: text.replace(/<[^>]+>/g, ' ').trim() });
+
+        } catch (err) {
+          console.error(err);
+          analysisEl.textContent = "Désolé, impossible de contacter le service de recommandation (vérifiez que le serveur Flask est lancé sur le port 5001).";
+          scrollToBottom();
+        }
+      }
+
+      // Affiche une bulle "en train d'écrire..." et renvoie son élément pour la mettre à jour ensuite
+      function addTypingIndicator() {
+        const messageDiv = addMessage('<em>en train d\'écrire...</em>', false, true);
+        return messageDiv.querySelector('.message-content');
+      }
+      
+      async function sendMessage() {
+        const text = userInput.value.trim();
+        if (text === '') return;
+
+        addMessage(text, true);
+        userInput.value = '';
+        sendBtn.disabled = true;
+
+        conversationHistory.push({ role: 'user', content: text });
+
+        const typingEl = addTypingIndicator();
+
+        try {
+          const response = await fetch('http://localhost:11434/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              model: 'qwen2.5',
+              messages: conversationHistory,
+              stream: false,
+              options: {
+                num_predict: 500,
+                num_ctx: 4096,
+                temperature: 0.2,
+                top_p: 0.8,
+                repeat_penalty: 1.1
+              }
+            })
+          });
+
+          if (!response.ok) throw new Error('Erreur réseau: ' + response.status);
+
+          const data = await response.json();
+          const botReply = data.message.content;
+
+          const { cleanText, profile } = extractProfile(botReply);
+
+          typingEl.innerHTML = formatBotText(cleanText);
+          conversationHistory.push({ role: 'assistant', content: botReply });
+
+          if (profile) {
+            await handleProfileComplete(profile);
+          }
+
+        } catch (error) {
+          console.error(error);
+          typingEl.textContent = "Désolé, je n'arrive pas à contacter le serveur local Ollama. Vérifiez qu'il est bien lancé.";
+        } finally {
+          sendBtn.disabled = false;
+          scrollToBottom();
+        }
+      }
+      
+      sendBtn.addEventListener('click', sendMessage);
+      userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          sendMessage();
+        }
+      }); 
+    </script>
+  </body>
+</html>
